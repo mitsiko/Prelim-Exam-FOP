@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prelim Grade Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+    <img class="background_img" src="images/gingham5.webp">
+    <div class="container">
+        <h1>Prelim Grade Calculator</h1>
+
+        <form id="grade-form" onsubmit="handleSubmit(event)">
+            <label for="absences">Number of Absences:</label>
+            <input type="number" id="absences" name="absences" min="0" required placeholder="Enter Number of absences: (0-100)" oninvalid="this.setCustomValidity('Please enter an integer between 0 and 100. Decimal numbers are not allowed.')" oninput="this.setCustomValidity('')">
+
+            <label for="prelim_exam">Prelim Exam Grade:</label>
+            <input type="number" id="prelim_exam" name="prelim_exam" min="0" max="100" step="0.01" required placeholder="Enter Prelim Exam Grade: (0-100)" oninvalid="this.setCustomValidity('Please enter a valid number between 0 and 100, with up to 2 decimal places only.')" oninput="this.setCustomValidity('')"> 
+
+            <label for="quizzes">Quizzes Grade:</label>
+            <input type="number" id="quizzes" name="quizzes" min="0" max="100" step="0.01" required placeholder="Enter Quizzes Grade: (0-100)" oninvalid="this.setCustomValidity('Please enter a valid number between 0 and 100, with up to 2 decimal places only.')" oninput="this.setCustomValidity('')">
+
+            <label for="requirements">Requirements Grade:</label>
+            <input type="number" id="requirements" name="requirements" min="0" max="100" step="0.01" required placeholder="Enter Requirements Grade: (0-100)" oninvalid="this.setCustomValidity('Please enter a valid number between 0 and 100, with up to 2 decimal places only.')" oninput="this.setCustomValidity('')">
+
+            <label for="recitation">Recitation Grade:</label>
+            <input type="number" id="recitation" name="recitation" min="0" max="100" step="0.01" required placeholder="Enter Recitation Grade: (0-100)" oninvalid="this.setCustomValidity('Please enter a valid number between 0 and 100, with up to 2 decimal places only.')" oninput="this.setCustomValidity('')">
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        <div id="result-message"></div>
+
+        <py-script>
+            from js import document, window
+            import json
+
+            def calculate_grades(absences, prelim_exam, quizzes, requirements, recitation):
+                # Attendance calculation
+                attendance = 100 - (absences * 10)
+                if absences >= 4:
+                    return "FAILED due to excessive absences"
+
+                # Class Standing Calculation
+                class_standing = (0.40 * quizzes) + (0.30 * requirements) + (0.30 * recitation)
+
+                # Prelim Grade Calculation
+                prelim_grade = (0.60 * prelim_exam) + (0.10 * attendance) + (0.30 * class_standing)
+
+                # Required Grades for passing
+                passing_midterm = (75 - (0.20 * prelim_grade)) / 0.80
+                passing_final = (75 - (0.20 * prelim_grade) - (0.30 * passing_midterm)) / 0.50
+
+                # Required Grades for Dean's List
+                deans_midterm = (90 - (0.20 * prelim_grade)) / 0.80
+                deans_final = (90 - (0.20 * prelim_grade) - (0.30 * deans_midterm)) / 0.50
+
+                # Prepare the result as a dictionary
+                result = {
+                    "prelim_grade": round(prelim_grade, 2),
+                    "passing_midterm": round(passing_midterm, 2),
+                    "passing_final": round(passing_final, 2),
+                    "deans_midterm": round(deans_midterm, 2),
+                    "deans_final": round(deans_final, 2)
+                }
+
+                # Return the result as a JSON string
+                return json.dumps(result)
+
+            window.calculate_grades = calculate_grades
+        </py-script>
+
+        <script>
+            async function handleSubmit(event) {
+                event.preventDefault();
+
+                // Get values from the form inputs
+                const absences = parseInt(document.getElementById("absences").value);
+                const prelim_exam = parseFloat(document.getElementById("prelim_exam").value);
+                const quizzes = parseFloat(document.getElementById("quizzes").value);
+                const requirements = parseFloat(document.getElementById("requirements").value);
+                const recitation = parseFloat(document.getElementById("recitation").value);
+
+                // Check for two decimal places
+                const inputs = [prelim_exam, quizzes, requirements, recitation];
+                for (let input of inputs) {
+                    if (input.toString().split(".")[1]?.length > 2) {
+                        document.getElementById("result-message").innerHTML = "<p>This field only accepts values with up to 2 decimal places.</p>";
+                        return;
+                    }
+                }
+
+                // Call the Python function and wait for the result
+                const result = await window.calculate_grades(absences, prelim_exam, quizzes, requirements, recitation);
+
+                // Parse the JSON string returned from Python
+                try {
+                    const parsedResult = JSON.parse(result);
+
+                    // Display the result in the HTML
+                    document.getElementById("result-message").innerHTML = `
+                        <h2>Results</h2>
+                        <p><strong>Prelim Grade: ${parsedResult.prelim_grade}</strong></p>
+                        <p><strong>To pass (75%), you need a Midterm grade of ${parsedResult.passing_midterm} and a Final grade of ${parsedResult.passing_final}</strong></p>
+                        <p><strong>To achieve Dean's List (90%), you need a Midterm grade of ${parsedResult.deans_midterm} and a Final grade of ${parsedResult.deans_final}</strong></p>
+                    `;
+                } catch (error) {
+                    // If there's an error (e.g., excessive absences), display the message
+                    document.getElementById("result-message").innerHTML = `<p>${result}</p>`;
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
