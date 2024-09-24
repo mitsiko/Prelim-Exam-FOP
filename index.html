@@ -112,8 +112,11 @@
                     // Display the result in the HTML
                     document.getElementById("result-message").innerHTML = `
                         <h2>Results:</h2>
+                        <br>
                         <p><strong>Prelim Grade: ${parsedResult.prelim_grade}</strong></p>
+                        <br>
                         <p><strong>To pass (75%), you need a Midterm grade of ${parsedResult.passing_midterm} and a Final grade of ${parsedResult.passing_final}</strong></p>
+                        <br>
                         <p><strong>${parsedResult.deans_midterm > 100 || parsedResult.deans_final > 100 ? "Unfortunately, it's not possible for you to be a Dean's Lister." : "To achieve Dean's List (90%), you need a Midterm grade of " + parsedResult.deans_midterm + " and a Final grade of " + parsedResult.deans_final}</strong></p>
                     `;
                 } catch (error) {
