@@ -4,14 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prelim Grade Calculator</title>
+
+    <!-- Link to external stylesheet for styling the webpage -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Load the PyScript library for running Python code in the browser -->
     <script src="https://pyscript.net/latest/pyscript.js"></script>
 </head>
 <body>
+    <!-- Background image-->
     <img class="background_img" src="images/gingham5.webp">
-    <div class="container">
-        <h1>Prelim Grade Calculator</h1>
 
+    <!-- Logo image-->
+    <img class="logo_img" src="images/logo.webp">
+
+    <div class="container">
+        <p class="intro">Welcome to the <b>Prelim Grade Calculator!</b> This tool helps you estimate your Prelim Grade based on various factors like your number of absences, quiz scores, prelim exam, requirements, and recitation performance. It also provides the required Midterm and Final Grades you need to pass (75%) or qualify for the Dean's List (90%). Stay informed, track your progress, and achieve your academic goals!</p>
+        <br>
         <form id="grade-form" onsubmit="handleSubmit(event)">
             <label for="absences">Number of Absences:</label>
             <input type="number" id="absences" name="absences" min="0" required placeholder="Enter Number of absences: (0-100)" oninvalid="this.setCustomValidity('Please enter an integer between 0 and 100. Decimal numbers are not allowed.')" oninput="this.setCustomValidity('')">
@@ -41,7 +50,8 @@
                 # Attendance calculation
                 attendance = 100 - (absences * 10)
                 if absences >= 4:
-                    return "FAILED due to excessive absences"
+                    return "<h2>Results:</h2><p><b>Unfortunately, you have failed the subject due to excessive absences.</b></p>"
+
 
                 # Class Standing Calculation
                 class_standing = (0.40 * quizzes) + (0.30 * requirements) + (0.30 * recitation)
@@ -101,7 +111,7 @@
 
                     // Display the result in the HTML
                     document.getElementById("result-message").innerHTML = `
-                        <h2>Results</h2>
+                        <h2>Results:</h2>
                         <p><strong>Prelim Grade: ${parsedResult.prelim_grade}</strong></p>
                         <p><strong>To pass (75%), you need a Midterm grade of ${parsedResult.passing_midterm} and a Final grade of ${parsedResult.passing_final}</strong></p>
                         <p><strong>${parsedResult.deans_midterm > 100 || parsedResult.deans_final > 100 ? "Unfortunately, it's not possible for you to be a Dean's Lister." : "To achieve Dean's List (90%), you need a Midterm grade of " + parsedResult.deans_midterm + " and a Final grade of " + parsedResult.deans_final}</strong></p>
