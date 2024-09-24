@@ -50,8 +50,7 @@
                 # Attendance calculation
                 attendance = 100 - (absences * 10)
                 if absences >= 4:
-                    return "<h2>Results:</h2><p><b>Unfortunately, you have failed the subject due to excessive absences.</b></p>"
-
+                    return "<h2>Results:</h2><br><p><b>Unfortunately, you have failed the subject due to excessive absences.</b></p>"
 
                 # Class Standing Calculation
                 class_standing = (0.40 * quizzes) + (0.30 * requirements) + (0.30 * recitation)
@@ -109,27 +108,40 @@
                 try {
                     const parsedResult = JSON.parse(result);
 
+                    // Prepare the Dean's List status
+                    let deansStatus = "";
+                    if (parsedResult.deans_midterm > 100 || parsedResult.deans_final > 100) {
+                        deansStatus = "<p><b>Unfortunately, it's not possible for you to be a Dean's Lister with your current grade.</b></p>";
+                    } else {
+                        deansStatus = `
+                            <p><b>To qualify for the Dean's List (90% subject grade), achieve the following this semester:</b></p>
+                            <p>Required Midterm Grade: ${parsedResult.deans_midterm}</p>
+                            <p>Required Final Grade: ${parsedResult.deans_final}</p>
+                        `;
+                    }
+
                     // Display the result in the HTML
                     document.getElementById("result-message").innerHTML = `
-                        <h2>Results:</h2>
+                        <h2>Results</h2>
                         <br>
-                        <p><strong>Prelim Grade: ${parsedResult.prelim_grade}</strong></p>
+                        <p><b>Prelim Grade: ${parsedResult.prelim_grade}</b></p>
                         <br>
-                        <p><strong>To pass (75%), you need a Midterm grade of ${parsedResult.passing_midterm} and a Final grade of ${parsedResult.passing_final}</strong></p>
+                        <p><b>To pass with a minimum grade of 75%, aim for the required grades below:</b></p>
+                        <p>Required Midterm Grade: ${parsedResult.passing_midterm}</p>
+                        <p>Required Final Grade: ${parsedResult.passing_final}</p>
                         <br>
-                        <p><strong>${parsedResult.deans_midterm > 100 || parsedResult.deans_final > 100 ? "Unfortunately, it's not possible for you to be a Dean's Lister." : "To achieve Dean's List (90%), you need a Midterm grade of " + parsedResult.deans_midterm + " and a Final grade of " + parsedResult.deans_final}</strong></p>
+                        ${deansStatus}
                     `;
                 } catch (error) {
                     // If there's an error (e.g., excessive absences), display the message
                     document.getElementById("result-message").innerHTML = `<p>${result}</p>`;
                 }
                 
-                 // Clear the form inputs after successful submission
-                 document.getElementById("grade-form").reset();
+                // Clear the form inputs after successful submission
+                document.getElementById("grade-form").reset();
 
-                 // Scroll to the result-message div
-                 document.getElementById("result-message").scrollIntoView({ behavior: "smooth" });
-
+                // Scroll to the result-message div
+                document.getElementById("result-message").scrollIntoView({ behavior: "smooth" });
             }
         </script>
     </div>
