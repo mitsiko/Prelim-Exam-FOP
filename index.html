@@ -62,8 +62,7 @@
                    oninput="this.setCustomValidity('')">
         
             <button type="submit">Calculate</button>
-        </form>
-        
+        </form>        
 
         <!-- Container for displaying the result messages -->
         <div id="result-message"></div>
@@ -114,16 +113,16 @@
         <script>
             // This function is triggered when the form is submitted
             async function handleSubmit(event) {
-                event.preventDefault(); // Prevent the form from reloading the page
+                event.preventDefault();
 
-                // Get input values from the form fields
-                const absences = parseInt(document.getElementById("absences").value);
+                // Get values from the form inputs and ensure they're parsed correctly
+                const absences = Math.floor(document.getElementById("absences").value); // Ensure absences are always whole
                 const prelim_exam = parseFloat(document.getElementById("prelim_exam").value);
                 const quizzes = parseFloat(document.getElementById("quizzes").value);
                 const requirements = parseFloat(document.getElementById("requirements").value);
                 const recitation = parseFloat(document.getElementById("recitation").value);
 
-                // Validate that inputs have no more than two decimal places
+                // Ensure only up to two decimal places are allowed
                 const inputs = [prelim_exam, quizzes, requirements, recitation];
                 for (let input of inputs) {
                     if (input.toString().split(".")[1]?.length > 2) {
@@ -132,14 +131,14 @@
                     }
                 }
 
-                // Call the Python function and retrieve the result
+                // Call the Python function and wait for the result
                 const result = await window.calculate_grades(absences, prelim_exam, quizzes, requirements, recitation);
 
-                // Try parsing the result from the Python script
+                // Parse the JSON string returned from Python
                 try {
                     const parsedResult = JSON.parse(result);
 
-                    // Determine Dean's List eligibility based on the calculated grades
+                    // Prepare the Dean's List status
                     let deansStatus = "";
                     if (parsedResult.deans_midterm > 100 || parsedResult.deans_final > 100) {
                         deansStatus = "<p><b>Unfortunately, it's not possible for you to be a Dean's Lister with your current grade.</b></p>";
@@ -151,7 +150,7 @@
                         `;
                     }
 
-                    // Display the results on the webpage
+                    // Display the result in the HTML
                     document.getElementById("result-message").innerHTML = `
                         <h2>Results</h2>
                         <br>
@@ -164,16 +163,17 @@
                         ${deansStatus}
                     `;
                 } catch (error) {
-                    // Handle errors (e.g., failure due to excessive absences)
+                    // If there's an error (e.g., excessive absences), display the message
                     document.getElementById("result-message").innerHTML = `<p>${result}</p>`;
                 }
 
-                // Clear form inputs after submission
+                // Clear the form inputs after successful submission
                 document.getElementById("grade-form").reset();
 
                 // Scroll to the result-message div
                 document.getElementById("result-message").scrollIntoView({ behavior: "smooth" });
             }
+
         </script>
     </div>
 </body>
