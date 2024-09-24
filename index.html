@@ -71,43 +71,54 @@
         <py-script>
             from js import document, window
             import json
-
+        
             # Function to calculate the grades based on user input
             def calculate_grades(absences, prelim_exam, quizzes, requirements, recitation):
-                # Attendance is reduced by 10% for each absence
-                attendance = 100 - (absences * 10)
-
-                # If absences are 4 or more, the student fails due to excessive absences
-                if absences >= 4:
-                    return "<h2>Results:</h2><br><p><b>Unfortunately, you have failed the subject due to excessive absences.</b></p>"
-
-                # Class standing is based on the weighted average of quizzes, requirements, and recitation
-                class_standing = (0.40 * quizzes) + (0.30 * requirements) + (0.30 * recitation)
-
-                # Prelim grade is a weighted average of prelim exam, attendance, and class standing
-                prelim_grade = (0.60 * prelim_exam) + (0.10 * attendance) + (0.30 * class_standing)
-
-                # Required midterm and final grades to pass (75%)
-                passing_midterm = (75 - (0.20 * prelim_grade)) / 0.80
-                passing_final = (75 - (0.20 * prelim_grade) - (0.30 * passing_midterm)) / 0.50
-
-                # Required midterm and final grades to qualify for Dean's List (90%)
-                deans_midterm = (90 - (0.20 * prelim_grade)) / 0.80
-                deans_final = (90 - (0.20 * prelim_grade) - (0.30 * deans_midterm)) / 0.50
-
-                # Return the calculated results as a dictionary in JSON format
-                result = {
-                    "prelim_grade": round(prelim_grade, 2),
-                    "passing_midterm": round(passing_midterm, 2),
-                    "passing_final": round(passing_final, 2),
-                    "deans_midterm": round(deans_midterm, 2),
-                    "deans_final": round(deans_final, 2)
-                }
-                return json.dumps(result)
-
+                try:
+                    # Ensure that all input values are converted to float or int where necessary
+                    absences = int(absences)
+                    prelim_exam = float(prelim_exam)
+                    quizzes = float(quizzes)
+                    requirements = float(requirements)
+                    recitation = float(recitation)
+        
+                    # Attendance is reduced by 10% for each absence
+                    attendance = 100 - (absences * 10)
+        
+                    # If absences are 4 or more, the student fails due to excessive absences
+                    if absences >= 4:
+                        return "<h2>Results:</h2><br><p><b>Unfortunately, you have failed the subject due to excessive absences.</b></p>"
+        
+                    # Class standing is based on the weighted average of quizzes, requirements, and recitation
+                    class_standing = (0.40 * quizzes) + (0.30 * requirements) + (0.30 * recitation)
+        
+                    # Prelim grade is a weighted average of prelim exam, attendance, and class standing
+                    prelim_grade = (0.60 * prelim_exam) + (0.10 * attendance) + (0.30 * class_standing)
+        
+                    # Required midterm and final grades to pass (75%)
+                    passing_midterm = (75 - (0.20 * prelim_grade)) / 0.80
+                    passing_final = (75 - (0.20 * prelim_grade) - (0.30 * passing_midterm)) / 0.50
+        
+                    # Required midterm and final grades to qualify for Dean's List (90%)
+                    deans_midterm = (90 - (0.20 * prelim_grade)) / 0.80
+                    deans_final = (90 - (0.20 * prelim_grade) - (0.30 * deans_midterm)) / 0.50
+        
+                    # Return the calculated results as a dictionary in JSON format
+                    result = {
+                        "prelim_grade": round(prelim_grade, 2),
+                        "passing_midterm": round(passing_midterm, 2),
+                        "passing_final": round(passing_final, 2),
+                        "deans_midterm": round(deans_midterm, 2),
+                        "deans_final": round(deans_final, 2)
+                    }
+                    return json.dumps(result)
+        
+                except ValueError:
+                    return "<h2>Error:</h2><br><p>Please enter valid numeric values for all fields.</p>"
+        
             # Make the function accessible from JavaScript
             window.calculate_grades = calculate_grades
-        </py-script>
+        </py-script>        
 
         <!-- JavaScript code to handle the form submission and display results -->
         <script>
@@ -115,12 +126,12 @@
             async function handleSubmit(event) {
                 event.preventDefault();
 
-                // Get values from the form inputs and ensure they're parsed correctly
-                const absences = Math.floor(document.getElementById("absences").value); // Ensure absences are always whole
-                const prelim_exam = parseFloat(document.getElementById("prelim_exam").value);
-                const quizzes = parseFloat(document.getElementById("quizzes").value);
-                const requirements = parseFloat(document.getElementById("requirements").value);
-                const recitation = parseFloat(document.getElementById("recitation").value);
+                // Get values from the form inputs and parse correctly
+                const absences = parseInt(document.getElementById("absences").value); // Use parseInt for absences
+                const prelim_exam = parseFloat(document.getElementById("prelim_exam").value).toFixed(2); // Round to 2 decimal places
+                const quizzes = parseFloat(document.getElementById("quizzes").value).toFixed(2); // Round to 2 decimal places
+                const requirements = parseFloat(document.getElementById("requirements").value).toFixed(2); // Round to 2 decimal places
+                const recitation = parseFloat(document.getElementById("recitation").value).toFixed(2); // Round to 2 decimal places
 
                 // Ensure only up to two decimal places are allowed
                 const inputs = [prelim_exam, quizzes, requirements, recitation];
